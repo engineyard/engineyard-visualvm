@@ -15,7 +15,7 @@ begin
 
     ant.jar :basedir => "pkg/classes", :destfile => jar_file, :includes => "**/*.class" do
       manifest do
-        attribute :name => "Premain-Class", :value => "org.jruby.jmxwrapper.Agent"
+        attribute :name => "Premain-Class", :value => "org.jruby.ext.jmxwrapper.Agent"
       end
     end
   end
