@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'jmx-wrapper'
+
+Jmx::Wrapper::CLI.start
