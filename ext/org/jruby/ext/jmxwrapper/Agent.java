@@ -84,18 +84,17 @@ public class Agent {
         // of the URL, in "rmi://"+hostname+":"+port
         //
         final String hostname = InetAddress.getLocalHost().getHostName();
-        final String url = "service:jmx:rmi://"+hostname+
-            ":"+port+"/jndi/rmi://"+hostname+":"+port+"/jmxrmi";
-        JMXServiceURL surl = new JMXServiceURL(url);
-
-        // Now create the server from the JMXServiceURL
-        //
         JMXConnectorServer cs =
-            JMXConnectorServerFactory.newJMXConnectorServer(surl, env, mbs);
+            JMXConnectorServerFactory.newJMXConnectorServer(makeJMXServiceURL(hostname, port), env, mbs);
 
         cs.start();
         cleaner = new CleanThread(cs);
         cleaner.start();
+    }
+
+    public static JMXServiceURL makeJMXServiceURL(String hostname, int port) throws IOException {
+        return new JMXServiceURL("service:jmx:rmi://"+hostname+
+                                 ":"+port+"/jndi/rmi://"+hostname+":"+port+"/jmxrmi");
     }
 
     public static class CleanThread extends Thread {
