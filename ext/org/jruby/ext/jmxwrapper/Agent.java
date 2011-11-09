@@ -6,7 +6,7 @@
 /*
  * CustomAgent.java
  *
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007, 2011 Sun Microsystems, Inc.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +39,7 @@
  *
  */
 
-package org.jruby.jmxwrapper;
+package org.jruby.ext.jmxwrapper;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -57,7 +57,7 @@ public class Agent {
 
     private Agent() { }
 
-    public static void premain(String agentArgs) throwsIOException {
+    public static void premain(String agentArgs) throws IOException {
 
         // Ensure cryptographically strong random number generator used
         // to choose the object number - see java.rmi.server.ObjID
