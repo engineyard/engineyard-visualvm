@@ -1,4 +1,4 @@
-require "jmx-wrapper/version"
+require 'jmx-wrapper/version'
 require 'thor'
 require 'thor/group'
 
@@ -15,13 +15,27 @@ module Jmx
         :desc => "Host or IP where the JMX agent runs" }
     }
 
+    def self.command_line_arguments(port)
+      "-Dorg.jruby.jmxwrapper.agent.port=#{port} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
+    end
+
     class Server < Thor::Group
+      class_option :port,  OPTIONS[:port]
       class_option :print, OPTIONS[:print]
       argument :args, :type => :array, :default => [],
         :desc => "Arguments to pass to the JVM", :banner => "[jvm args...]"
 
       def server
-        puts "server #{args.inspect} #{options.inspect}"
+        if options[:print]
+          puts command_line
+        else
+          puts "server #{args.inspect} #{options.inspect}"
+        end
+      end
+
+      private
+      def command_line
+        "java #{Wrapper.command_line_arguments(options[:port])} #{args.join(' ')}"
       end
     end
 
