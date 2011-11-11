@@ -39,6 +39,11 @@ module Jmx
         puts org.jruby.ext.jmxwrapper.Agent.make_jmx_service_url(options[:host], options[:port])
       end
 
+      desc "version"
+      def version
+        puts "jmx-wrapper version #{Jmx::Wrapper::VERSION}"
+      end
+
       def help(task = nil, *args)
         unless task
           puts "usage: jmx-wrapper <task> [options|arguments]"
