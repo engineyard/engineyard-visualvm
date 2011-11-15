@@ -64,6 +64,9 @@ public class Agent {
         //
         System.setProperty("java.rmi.server.randomIDs", "true");
 
+        // Ensure JRuby JMX beans are available in all runtimes
+        System.setProperty("jruby.management.enabled", "true");
+
         final int port = Integer.parseInt(System.getProperty("org.jruby.jmxwrapper.agent.port","5900"));
         LocateRegistry.createRegistry(port);
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
