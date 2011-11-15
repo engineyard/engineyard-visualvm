@@ -1,61 +1,55 @@
 require 'jmx-wrapper/version'
 require 'thor'
-require 'thor/group'
 
 module Jmx
   module Wrapper
-    OPTIONS = {
-      :print => { :aliases => "-n", :type => :boolean, :default => false,
-        :desc => "Print arguments to pass to JVM but don't launch" },
-
-      :port =>  { :aliases => "-p", :type => :numeric, :default => 5900,
-        :desc => "Port where the JMX agent runs" },
-
-      :host =>  { :aliases => "-H", :default => "localhost",
-        :desc => "Host or IP where the JMX agent runs" }
-    }
-
-    def self.command_line_arguments(port)
-      "-Dorg.jruby.jmxwrapper.agent.port=#{port} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
-    end
-
-    class Server < Thor::Group
-      class_option :port,  OPTIONS[:port]
-      class_option :print, OPTIONS[:print]
-      argument :args, :type => :array, :default => [],
-        :desc => "Arguments to pass to the JVM", :banner => "[jvm args...]"
-
-      def server
-        if options[:print]
-          puts command_line
-        else
-          puts "server #{args.inspect} #{options.inspect}"
-        end
+    module Helpers
+      def jvm_arguments
+        "-Dorg.jruby.jmxwrapper.agent.port=#{options[:port]} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
       end
 
-      private
-      def command_line
-        "java #{Wrapper.command_line_arguments(options[:port])} #{args.join(' ')}"
+      def jmx_service_url
+        require 'jmx-wrapper/agent'
+        require 'java'
+        org.jruby.ext.jmxwrapper.Agent.make_jmx_service_url(options[:host], options[:port])
+      end
+
+      def find_executable?(exe)
+        ENV['PATH'].split(File::PATH_SEPARATOR).detect do |path|
+          File.exist?(File.join(path, exe))
+        end
       end
     end
 
     class CLI < Thor
-      class_option :port, OPTIONS[:port]
+      include Helpers
+      class_option :host, :aliases => "-H", :default => "localhost",
+        :desc => "Host or IP where the JMX agent runs"
+      class_option :port, :aliases => "-p", :type => :numeric, :default => 5900,
+        :desc => "Port where the JMX agent runs"
 
-      method_option :print, OPTIONS[:print]
-      register Server, "server", "server [JVM ARGS]", "Launch the Java JMX server process"
-
-      desc "url", "Show the connection URL for the JMX server process"
-      method_option :host, OPTIONS[:host]
-      def url
-        require 'jmx-wrapper/agent'
-        require 'java'
-        puts org.jruby.ext.jmxwrapper.Agent.make_jmx_service_url(options[:host], options[:port])
+      desc "jvmargs", "Print the arguments to be passed to the server JVM"
+      def jvmargs
+        puts jvm_arguments
       end
 
-      desc "version"
+      desc "url", "Print the connection URL for the JMX server process"
+      def url
+        puts jmx_service_url
+      end
+
+      desc "version", "Show version"
       def version
         puts "jmx-wrapper version #{Jmx::Wrapper::VERSION}"
+      end
+
+      desc "visualvm", "Launch VisualVM to connect to the server"
+      def visualvm
+        unless find_executable?("jvisualvm")
+          warn "Could not find jvisualvm; do you need to install the JDK?"
+          exit 1
+        end
+        exec "jvisualvm --openjmx #{jmx_service_url}"
       end
 
       def help(task = nil, *args)
