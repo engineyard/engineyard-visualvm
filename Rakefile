@@ -30,4 +30,7 @@ end
 # Make sure jar gets compiled before the gem is built
 task :build => :jar
 
-task :default => :build
+task :default => [:build, :spec]
+
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
