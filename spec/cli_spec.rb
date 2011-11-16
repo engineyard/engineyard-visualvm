@@ -1,7 +1,7 @@
 require File.expand_path('../spec_helper', __FILE__)
 
 describe Jmx::Wrapper::CLI do
-  let(:script) { Class.new(Jmx::Wrapper::CLI) }
+  let(:script) { Jmx::Wrapper::CLI }
 
   context "#help" do
     it "prints the default port" do
@@ -20,57 +20,59 @@ describe Jmx::Wrapper::CLI do
   end
 
   context "#visualvm" do
-    let(:process) { double("process double").tap {|d| d.should_receive(:start) } }
-    let(:exec_double) { double("exec double") }
-
-    before :each do
-      db = exec_double
-      script.class_eval { include ExecDouble; self.exec_double = db }
-    end
+    let(:ssh_process) { double("ssh process double").tap {|d| d.should_receive(:start) } }
+    let(:visualvm_process) { double("visualvm process double").tap {|d| d.should_receive(:start); d.should_receive(:exited?).and_return(true) } }
 
     it "starts jvisualvm with the service URL" do
-      exec_double.should_receive(:exec).and_return do |*args|
-        args.first.should =~ /jvisualvm/
-        args.first.should =~ /--openjmx/
-        args.first.should =~ /service:jmx:rmi/
+      ChildProcess.should_receive(:build).and_return do |*args|
+        args[0].should == "jvisualvm"
+        args[1].should == "--openjmx"
+        args[2].should =~ /service:jmx:rmi/
+        visualvm_process
       end
       script.start(["visualvm"])
     end
 
     it "allows the port number to be specified" do
-      exec_double.should_receive(:exec).and_return do |*args|
-        args.first.should =~ /service:jmx:rmi.*:1234/
+      ChildProcess.should_receive(:build).and_return do |*args|
+        args[2].should =~ /service:jmx:rmi.*:1234/
+        visualvm_process
       end
       script.start(["visualvm", "--port=1234"])
     end
 
     it "allows the host to be specified" do
-      exec_double.should_receive(:exec).and_return do |*args|
-        args.first.should =~ /service:jmx:rmi.*example.com:/
+      ChildProcess.should_receive(:build).and_return do |*args|
+        args[2].should =~ /service:jmx:rmi.*example.com:/
+        visualvm_process
       end
       script.start(["visualvm", "--host=example.com"])
     end
 
     it "sets up an ssh tunnel if the user@host format is used" do
-      ChildProcess.should_receive(:build).and_return do |*args|
+      ChildProcess.should_receive(:build).ordered.and_return do |*args|
         args.join(' ').should =~ /ssh -NL.*user@example.com/
-        process
+        ssh_process
       end
-      exec_double.should_receive(:exec).ordered.and_return do |*args|
-        args.first.should =~ /jvisualvm.*service:jmx:rmi.*localhost:/
+      ChildProcess.should_receive(:build).ordered.and_return do |*args|
+        args[2].should =~ /service:jmx:rmi.*localhost:/
+        visualvm_process
       end
+      ssh_process.should_receive(:stop)
 
       script.start(["visualvm", "--host=user@example.com"])
     end
 
     it "allows an ssh tunnel to be forced" do
-      ChildProcess.should_receive(:build).and_return do |*args|
+      ChildProcess.should_receive(:build).ordered.and_return do |*args|
         args.join(' ').should =~ /ssh -NL/
-        process
+        ssh_process
       end
-      exec_double.should_receive(:exec).ordered.and_return do |*args|
-        args.first.should =~ /jvisualvm.*service:jmx:rmi.*localhost:/
+      ChildProcess.should_receive(:build).ordered.and_return do |*args|
+        args[2].should =~ /service:jmx:rmi.*localhost:/
+        visualvm_process
       end
+      ssh_process.should_receive(:stop)
 
       script.start(["visualvm", "--ssh"])
     end
@@ -87,13 +89,16 @@ describe Jmx::Wrapper::CLI do
       end
 
       it "finds an open port for the local side of the ssh tunnel" do
-        ChildProcess.should_receive(:build).and_return do |*args|
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
           args.join(' ').should =~ /ssh -NL #{@next_port}:localhost:#{@port}/
-          process
+          ssh_process
         end
-        exec_double.should_receive(:exec).ordered.and_return do |*args|
-          args.first.should =~ /jvisualvm.*service:jmx:rmi.*localhost:/
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
+          args[2].should =~ /service:jmx:rmi.*localhost:/
+          visualvm_process
         end
+        ssh_process.should_receive(:stop)
+
         script.start(["visualvm", "--ssh", "--port=#{@port}"])
       end
     end

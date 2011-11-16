@@ -102,12 +102,20 @@ module Jmx
         if ssh?
           ssh_dest = ssh_host
           server_host, server_port = host, port
-          @host, @port = "localhost", Helpers.default_port(server_port)
+          @host, @port = "localhost", Helpers.default_port(server_port + 1)
           @ssh_process = ChildProcess.build("ssh", "-NL", "#{port}:#{host}:#{server_port}", "#{ssh_dest}")
           @ssh_process.start
         end
 
-        exec "jvisualvm --openjmx #{jmx_service_url}"
+        visualvm = ChildProcess.build("jvisualvm", "--openjmx", jmx_service_url.to_s)
+        visualvm.start
+
+        loop do
+          visualvm.exited? && break
+          sleep 1
+        end
+
+        @ssh_process.stop if @ssh_process
       end
 
       def help(task = nil, *args)

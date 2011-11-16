@@ -19,25 +19,6 @@ module JmxWrapperSpecHelpers
   alias capture silence
 end
 
-module ExecDouble
-  def self.included(base)
-    def base.exec_double
-        @@double
-    end
-    def base.exec_double=(d)
-      @@double = d
-    end
-  end
-
-  def exec_double
-    @@double
-  end
-
-  def exec(*args)
-    exec_double.exec(*args)
-  end
-end
-
 RSpec.configure do |config|
   config.include JmxWrapperSpecHelpers
 end
