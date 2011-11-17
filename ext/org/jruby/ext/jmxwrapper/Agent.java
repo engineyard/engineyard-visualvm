@@ -43,13 +43,14 @@ package org.jruby.ext.jmxwrapper;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import java.rmi.server.RMIServerSocketFactory;
+import javax.management.remote.rmi.RMIConnectorServer;
 
 public class Agent {
 
@@ -68,9 +69,13 @@ public class Agent {
         System.setProperty("jruby.management.enabled", "true");
 
         final int port = Integer.parseInt(System.getProperty("org.jruby.jmxwrapper.agent.port","5900"));
-        LocateRegistry.createRegistry(port);
+        final String hostname = System.getProperty("org.jruby.jmxwrapper.agent.hostname", "127.0.0.1");
+        final RMIServerSocketFactory factory = new RMIServerSocketFactoryImpl(hostname);
+
+        LocateRegistry.createRegistry(port, null, factory);
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        HashMap<String,Object> env =new HashMap<String,Object>();
+        HashMap<String,Object> env = new HashMap<String,Object>();
+        env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, factory);
 
         // Create an RMI connector server.
         //
@@ -86,7 +91,6 @@ public class Agent {
         // The port for the RMI registry is specified in the second part
         // of the URL, in "rmi://"+hostname+":"+port
         //
-        final String hostname = InetAddress.getLocalHost().getHostName();
         JMXConnectorServer cs =
             JMXConnectorServerFactory.newJMXConnectorServer(makeJMXServiceURL(hostname, port), env, mbs);
 
