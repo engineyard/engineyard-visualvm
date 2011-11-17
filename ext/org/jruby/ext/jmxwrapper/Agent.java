@@ -68,8 +68,13 @@ public class Agent {
         // Ensure JRuby JMX beans are available in all runtimes
         System.setProperty("jruby.management.enabled", "true");
 
-        final int port = Integer.parseInt(System.getProperty("org.jruby.jmxwrapper.agent.port","5900"));
-        final String hostname = System.getProperty("org.jruby.jmxwrapper.agent.hostname", "127.0.0.1");
+        final int port = Integer.parseInt(System.getProperty("org.jruby.jmxwrapper.agent.port", "5900"));
+        final String hostname = System.getProperty("org.jruby.jmxwrapper.agent.hostname", "localhost");
+
+        // Make sure our RMI server knows which host we're binding to
+        System.setProperty("java.rmi.server.hostname", hostname);
+        System.setProperty("java.rmi.server.disableHttp", "true");
+
         final RMIServerSocketFactory factory = new RMIServerSocketFactoryImpl(hostname);
 
         LocateRegistry.createRegistry(port, null, factory);
@@ -80,10 +85,9 @@ public class Agent {
         // Create an RMI connector server.
         //
         // As specified in the JMXServiceURL the RMIServer stub will be
-        // registered in the RMI registry running in the local host on
-        // port 3000 with the name "jmxrmi". This is the same name the
-        // out-of-the-box management agent uses to register the RMIServer
-        // stub too.
+        // registered in the RMI registry running in the local host with the
+        // name "jmxrmi". This is the same name the out-of-the-box
+        // management agent uses to register the RMIServer stub too.
         //
         // The port specified in "service:jmx:rmi://"+hostname+":"+port
         // is the second port, where RMI connection objects will be exported.
@@ -91,8 +95,7 @@ public class Agent {
         // The port for the RMI registry is specified in the second part
         // of the URL, in "rmi://"+hostname+":"+port
         //
-        JMXConnectorServer cs =
-            JMXConnectorServerFactory.newJMXConnectorServer(makeJMXServiceURL(hostname, port), env, mbs);
+        JMXConnectorServer cs = new RMIConnectorServer(makeJMXServiceURL(hostname, port), env, mbs);
 
         cs.start();
         cleaner = new CleanThread(cs);

@@ -79,9 +79,9 @@ describe Jmx::Wrapper::CLI do
 
     context "with a port conflict" do
       before :each do
-        @port = Jmx::Wrapper::Helpers.default_port
+        @port = Jmx::Wrapper::Helpers.next_free_port
         @server = TCPServer.new("127.0.0.1", @port)
-        @next_port = Jmx::Wrapper::Helpers.default_port
+        @next_port = Jmx::Wrapper::Helpers.next_free_port
       end
 
       after :each do

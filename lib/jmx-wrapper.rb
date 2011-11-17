@@ -17,7 +17,9 @@ module Jmx
         end
       end
 
-      def self.default_port(start = 5900)
+      STARTING_PORT = 5900
+
+      def self.next_free_port(start = STARTING_PORT)
         (start...start+100).each do |i|
           return i if port_available?(i)
         end
@@ -48,12 +50,16 @@ module Jmx
                   end
       end
 
+      def next_free_port
+        Helpers.next_free_port(port)
+      end
+
       def port
-        @port ||= Numeric === options[:port] && options[:port] || Helpers.default_port
+        @port ||= Numeric === options[:port] && options[:port] || STARTING_PORT
       end
 
       def jvm_arguments
-        "-Dorg.jruby.jmxwrapper.agent.port=#{options[:port]} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
+        "-Dorg.jruby.jmxwrapper.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
       end
 
       def jmx_service_url
@@ -73,7 +79,7 @@ module Jmx
       include Helpers
       class_option :host, :aliases => "-H", :default => "localhost",
         :desc => "Host or IP where the JMX agent runs"
-      class_option :port, :aliases => "-p", :type => :numeric, :default => "5900",
+      class_option :port, :aliases => "-p", :type => :numeric, :default => STARTING_PORT.to_s,
         :desc => "Port where the JMX agent runs"
 
       desc "jvmargs", "Print the arguments to be passed to the server JVM"
@@ -95,15 +101,15 @@ module Jmx
       method_option :ssh, :type => :boolean, :desc => "Force VisualVM to connect through an ssh tunnel"
       def visualvm
         unless find_executable?("jvisualvm")
-          warn "Could not find jvisualvm; do you need to install the JDK?"
+          warn "Could not find \`jvisualvm\'; do you need to install the JDK?"
           exit 1
         end
 
         if ssh?
           ssh_dest = ssh_host
           server_host, server_port = host, port
-          @host, @port = "localhost", Helpers.default_port(server_port + 1)
-          @ssh_process = ChildProcess.build("ssh", "-NL", "#{port}:#{host}:#{server_port}", "#{ssh_dest}")
+          @host, @port = "localhost", next_free_port
+          @ssh_process = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{server_port}", "#{ssh_dest}")
           @ssh_process.start
         end
 

@@ -18,10 +18,6 @@ public class RMIServerSocketFactoryImpl implements RMIServerSocketFactory {
         localAddress = InetAddress.getByName(address);
     }
 
-    public RMIServerSocketFactoryImpl(final InetAddress address) {
-        localAddress = address;
-    }
-
     public ServerSocket createServerSocket(final int port) throws IOException  {
         return ServerSocketFactory.getDefault().createServerSocket(port, 0, localAddress);
     }
