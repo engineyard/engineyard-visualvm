@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'engineyard-visualvm'
+
+EngineYard::VisualVM::CLI.start

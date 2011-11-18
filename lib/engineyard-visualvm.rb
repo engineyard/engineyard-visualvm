@@ -1,10 +1,10 @@
-require 'jmx-wrapper/version'
+require 'engineyard-visualvm/version'
 require 'thor'
 require 'childprocess'
 require 'socket'
 
-module Jmx
-  module Wrapper
+module EngineYard
+  module VisualVM
     module Helpers
       def self.port_available?(port)
         begin
@@ -59,11 +59,11 @@ module Jmx
       end
 
       def jvm_arguments
-        "-Dorg.jruby.jmxwrapper.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../jmx-wrapper/agent.jar', __FILE__)}"
+        "-Dorg.jruby.jmxwrapper.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../engineyard-visualvm/agent.jar', __FILE__)}"
       end
 
       def jmx_service_url
-        require 'jmx-wrapper/agent'
+        require 'engineyard-visualvm/agent'
         require 'java'
         org.jruby.ext.jmxwrapper.Agent.make_jmx_service_url(host, port)
       end
@@ -94,12 +94,12 @@ module Jmx
 
       desc "version", "Show version"
       def version
-        puts "jmx-wrapper version #{Jmx::Wrapper::VERSION}"
+        puts "ey-visualvm version #{EngineYard::VisualVM::VERSION}"
       end
 
-      desc "visualvm", "Launch VisualVM to connect to the server"
+      desc "start", "Launch VisualVM to connect to the server"
       method_option :ssh, :type => :boolean, :desc => "Force VisualVM to connect through an ssh tunnel"
-      def visualvm
+      def start
         unless find_executable?("jvisualvm")
           warn "Could not find \`jvisualvm\'; do you need to install the JDK?"
           exit 1
@@ -126,8 +126,8 @@ module Jmx
 
       def help(task = nil, *args)
         unless task
-          puts "usage: jmx-wrapper <task> [options|arguments]"
-          puts "Make JMX more accessible to your server and/or client programs."
+          puts "usage: ey-visualvm <task> [options|arguments]"
+          puts "Make JMX and VisualVM more accessible to your server-side JVM."
           puts
         end
         super

@@ -1,7 +1,7 @@
 require 'rspec'
-require 'jmx-wrapper'
+require 'engineyard-visualvm'
 
-module JmxWrapperSpecHelpers
+module EYVisualVMSpecHelpers
   def silence(io = nil)
     require 'stringio'
     io = StringIO.new
@@ -20,5 +20,5 @@ module JmxWrapperSpecHelpers
 end
 
 RSpec.configure do |config|
-  config.include JmxWrapperSpecHelpers
+  config.include EYVisualVMSpecHelpers
 end

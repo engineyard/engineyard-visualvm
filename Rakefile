@@ -4,7 +4,7 @@ require "rake/clean"
 desc "Compile and jar the agent extension class"
 begin
   require 'ant'
-  jar_file = "lib/jmx-wrapper/agent.jar"
+  jar_file = "lib/engineyard-visualvm/agent.jar"
   directory "pkg/classes"
 
   file jar_file => FileList['ext/**/*.java'] do
@@ -15,7 +15,7 @@ begin
 
     ant.jar :basedir => "pkg/classes", :destfile => jar_file, :includes => "**/*.class" do
       manifest do
-        attribute :name => "Premain-Class", :value => "org.jruby.ext.jmxwrapper.Agent"
+        attribute :name => "Premain-Class", :value => "org.jruby.ext.jmx.Agent"
       end
     end
   end

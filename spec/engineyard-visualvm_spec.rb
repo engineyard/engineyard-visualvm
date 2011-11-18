@@ -1,11 +1,11 @@
 require File.expand_path('../spec_helper', __FILE__)
 
-describe Jmx::Wrapper::CLI do
-  let(:script) { Jmx::Wrapper::CLI }
+describe EngineYard::VisualVM::CLI do
+  let(:script) { EngineYard::VisualVM::CLI }
 
   context "#help" do
     it "prints the default port" do
-      capture { script.start(["help", "visualvm"]) }.should =~ /Default:/
+      capture { script.start(["help", "start"]) }.should =~ /Default:/
     end
   end
 
@@ -19,7 +19,7 @@ describe Jmx::Wrapper::CLI do
     end
   end
 
-  context "#visualvm" do
+  context "#start" do
     let(:ssh_process) { double("ssh process double").tap {|d| d.should_receive(:start) } }
     let(:visualvm_process) { double("visualvm process double").tap {|d| d.should_receive(:start); d.should_receive(:exited?).and_return(true) } }
 
@@ -30,7 +30,7 @@ describe Jmx::Wrapper::CLI do
         args[2].should =~ /service:jmx:rmi/
         visualvm_process
       end
-      script.start(["visualvm"])
+      script.start(["start"])
     end
 
     it "allows the port number to be specified" do
@@ -38,7 +38,7 @@ describe Jmx::Wrapper::CLI do
         args[2].should =~ /service:jmx:rmi.*:1234/
         visualvm_process
       end
-      script.start(["visualvm", "--port=1234"])
+      script.start(["start", "--port=1234"])
     end
 
     it "allows the host to be specified" do
@@ -46,7 +46,7 @@ describe Jmx::Wrapper::CLI do
         args[2].should =~ /service:jmx:rmi.*example.com:/
         visualvm_process
       end
-      script.start(["visualvm", "--host=example.com"])
+      script.start(["start", "--host=example.com"])
     end
 
     it "sets up an ssh tunnel if the user@host format is used" do
@@ -60,7 +60,7 @@ describe Jmx::Wrapper::CLI do
       end
       ssh_process.should_receive(:stop)
 
-      script.start(["visualvm", "--host=user@example.com"])
+      script.start(["start", "--host=user@example.com"])
     end
 
     it "allows an ssh tunnel to be forced" do
@@ -74,14 +74,14 @@ describe Jmx::Wrapper::CLI do
       end
       ssh_process.should_receive(:stop)
 
-      script.start(["visualvm", "--ssh"])
+      script.start(["start", "--ssh"])
     end
 
     context "with a port conflict" do
       before :each do
-        @port = Jmx::Wrapper::Helpers.next_free_port
+        @port = EngineYard::VisualVM::Helpers.next_free_port
         @server = TCPServer.new("127.0.0.1", @port)
-        @next_port = Jmx::Wrapper::Helpers.next_free_port
+        @next_port = EngineYard::VisualVM::Helpers.next_free_port
       end
 
       after :each do
@@ -99,7 +99,7 @@ describe Jmx::Wrapper::CLI do
         end
         ssh_process.should_receive(:stop)
 
-        script.start(["visualvm", "--ssh", "--port=#{@port}"])
+        script.start(["start", "--ssh", "--port=#{@port}"])
       end
     end
   end
