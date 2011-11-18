@@ -6,8 +6,10 @@ begin
   require 'ant'
   jar_file = "lib/engineyard-visualvm/agent.jar"
   directory "pkg/classes"
+  CLEAN << "pkg"
 
-  file jar_file => FileList['ext/**/*.java'] do
+  file jar_file => FileList['ext/**/*.java', 'pkg/classes'] do
+    rm_rf FileList['pkg/classes/**/*']
     ant.javac :srcdir => "ext", :destdir => "pkg/classes",
       :source => "1.5", :target => "1.5", :debug => true,
       :classpath => "${java.class.path}:${sun.boot.class.path}",

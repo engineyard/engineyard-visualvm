@@ -39,7 +39,7 @@
  *
  */
 
-package org.jruby.ext.jmxwrapper;
+package org.jruby.ext.jmx;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -68,8 +68,8 @@ public class Agent {
         // Ensure JRuby JMX beans are available in all runtimes
         System.setProperty("jruby.management.enabled", "true");
 
-        final int port = Integer.parseInt(System.getProperty("org.jruby.jmxwrapper.agent.port", "5900"));
-        final String hostname = System.getProperty("org.jruby.jmxwrapper.agent.hostname", "localhost");
+        final int port = Integer.parseInt(System.getProperty("org.jruby.jmx.agent.port", "5900"));
+        final String hostname = System.getProperty("org.jruby.jmx.agent.hostname", "localhost");
 
         // Make sure our RMI server knows which host we're binding to
         System.setProperty("java.rmi.server.hostname", hostname);

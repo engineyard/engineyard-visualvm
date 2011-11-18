@@ -107,12 +107,12 @@ describe EngineYard::VisualVM::CLI do
   context "#jvmargs" do
     it "prints the arguments for the server VM" do
       output = capture { script.start(["jvmargs"]) }
-      output.should =~ /-Dorg\.jruby\.jmxwrapper\.agent\.port=/
+      output.should =~ /-Dorg\.jruby\.jmx\.agent\.port=/
       output.should =~ /-javaagent:.*agent\.jar/
     end
 
     it "allows the port number to be specified" do
-      capture { script.start(["jvmargs", "--port=1234"]) }.should =~ /-Dorg\.jruby\.jmxwrapper\.agent\.port=1234/
+      capture { script.start(["jvmargs", "--port=1234"]) }.should =~ /-Dorg\.jruby\.jmx\.agent\.port=1234/
     end
   end
 end

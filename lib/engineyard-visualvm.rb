@@ -59,13 +59,13 @@ module EngineYard
       end
 
       def jvm_arguments
-        "-Dorg.jruby.jmxwrapper.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../engineyard-visualvm/agent.jar', __FILE__)}"
+        "-Dorg.jruby.jmx.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../engineyard-visualvm/agent.jar', __FILE__)}"
       end
 
       def jmx_service_url
         require 'engineyard-visualvm/agent'
         require 'java'
-        org.jruby.ext.jmxwrapper.Agent.make_jmx_service_url(host, port)
+        org.jruby.ext.jmx.Agent.make_jmx_service_url(host, port)
       end
 
       def find_executable?(exe)

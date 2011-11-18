@@ -2,7 +2,7 @@
  * Cribbed from http://vafer.org/blog/20061010091658/
  */
 
-package org.jruby.ext.jmxwrapper;
+package org.jruby.ext.jmx;
 
 import java.io.IOException;
 import java.net.InetAddress;
