@@ -34,8 +34,8 @@ than the default, pass `--host=<host-or-ip>` or `--port=<port>` to
 
 ## TODO
 
-- Prompt for a JVM to connect to if more than JVM process is running
-  on the server
+- Prompt for a JVM to connect to if more than one JVM process is
+  running on the server
 - Additional utilities to make use of the JMX connection remotely
 
 ## Miscellaneous
