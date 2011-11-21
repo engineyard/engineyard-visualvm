@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = EngineYard::VisualVM::VERSION
   s.authors     = ["Nick Sieger"]
   s.email       = ["nick@nicksieger.com"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/engineyard/engineyard-visualvm"
   s.summary     = %q{Client and server helpers for using JMX and VisualVM with EY Cloud.}
   s.description = %q{This provides a Java agent and command-line utility to enable
     JMX in any Java process such that it can be accessed through a firewall,
