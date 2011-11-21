@@ -20,7 +20,9 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency "thor"
   s.add_runtime_dependency "childprocess"
+  s.add_runtime_dependency "engineyard"
+  s.add_runtime_dependency "jruby-openssl" # engineyard gem uses ssl
+  s.add_runtime_dependency "ffi-ncurses" # for highline gem, dep of engineyard
   s.add_development_dependency "rspec"
 end

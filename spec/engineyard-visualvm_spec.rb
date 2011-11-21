@@ -7,7 +7,7 @@
 require File.expand_path('../spec_helper', __FILE__)
 
 describe EngineYard::VisualVM::CLI do
-  let(:script) { EngineYard::VisualVM::CLI }
+  let(:script) { Class.new(EngineYard::VisualVM::CLI) }
 
   context "#help" do
     it "prints the default port" do
@@ -28,6 +28,12 @@ describe EngineYard::VisualVM::CLI do
   context "#start" do
     let(:ssh_process) { double("ssh process double").tap {|d| d.should_receive(:start) } }
     let(:visualvm_process) { double("visualvm process double").tap {|d| d.should_receive(:start); d.should_receive(:exited?).and_return(true) } }
+
+    before :each do
+      script.class_eval do
+        no_tasks { define_method(:fetch_environment) { raise EY::Error, "error" } }
+      end
+    end
 
     it "starts jvisualvm with the service URL" do
       ChildProcess.should_receive(:build).and_return do |*args|
@@ -106,6 +112,30 @@ describe EngineYard::VisualVM::CLI do
         ssh_process.should_receive(:stop)
 
         script.start(["start", "--ssh", "--port=#{@port}"])
+      end
+    end
+
+    context "with --environment specified" do
+      let(:environment) { double(:environment).tap {|e| e.stub!(:load_balancer_ip_address).and_return "0.0.0.0" } }
+      before :each do
+        env = environment
+        script.class_eval do
+          no_tasks { define_method(:fetch_environment) { env } }
+        end
+      end
+
+      it "sets the user to 'deploy' and the host to the load balancer IP address" do
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
+          args.join(' ').should =~ /ssh -NL.* deploy@0.0.0.0/
+          ssh_process
+        end
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
+          args[2].should =~ /service:jmx:rmi.*localhost:/
+          visualvm_process
+        end
+        ssh_process.should_receive(:stop)
+
+        script.start(["start", "--environment=jruby"])
       end
     end
   end
