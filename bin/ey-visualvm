@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+#
+# Copyright (c) 2011 Engine Yard, Inc.
+# See the file LICENSE.txt included with the distribution for
+# software license details.
 
 require 'engineyard-visualvm'
 

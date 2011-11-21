@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2011 Engine Yard, Inc.
+ * See the file LICENSE.txt included with the distribution for
+ * software license details.
+ *
  * Based on CustomAgent.java found at the following URLs:
  * https://blogs.oracle.com/jmxetc/entry/connecting_through_firewall_using_jmx
  * https://blogs.oracle.com/jmxetc/entry/more_on_premain_and_jmx
