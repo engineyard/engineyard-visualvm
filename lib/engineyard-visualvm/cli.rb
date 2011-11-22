@@ -79,7 +79,7 @@ module EngineYard
       end
 
       def jvm_arguments
-        "-Dorg.jruby.jmx.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../engineyard-visualvm/agent.jar', __FILE__)}"
+        "-Dorg.jruby.jmx.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../agent.jar', __FILE__)}"
       end
 
       def jmx_service_url
