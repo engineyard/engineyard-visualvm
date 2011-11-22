@@ -36,7 +36,7 @@ module EngineYard
       def environment
         @environment ||= begin
                            fetch_environment(options[:environment], options[:account]).tap {|env|
-                             @user = "deploy"
+                             @user = env.username
                              @host = fetch_public_ip(env)
                            }
                          rescue EY::Error

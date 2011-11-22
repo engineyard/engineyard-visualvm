@@ -116,7 +116,12 @@ describe EngineYard::VisualVM::CLI do
     end
 
     context "with --environment specified" do
-      let(:environment) { double(:environment).tap {|e| e.stub!(:load_balancer_ip_address).and_return "0.0.0.0" } }
+      let(:environment) do
+        double(:environment).tap {|e|
+          e.stub!(:load_balancer_ip_address).and_return "0.0.0.0"
+          e.stub!(:username).and_return "deploy"
+        }
+      end
       before :each do
         env = environment
         script.class_eval do
