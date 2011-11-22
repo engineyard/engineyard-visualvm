@@ -32,14 +32,16 @@ The server JVM binds to the loopback interface and listens on port
 than the default, pass `--host=<host-or-ip>` or `--port=<port>` to
 `ey-visualvm jvmargs`.
 
+## Bits and Pieces
+
+- Gem: `gem install engineyard-visualvm`
+- Source: https://github.com/engineyard/engineyard-visualvm
+- License: MIT; see LICENSE.txt for details.
+
 ## TODO
 
 - Prompt for a JVM to connect to if more than one JVM process is
   running on the server
+- Data collected by `jstatd` is not yet supported, so things like the
+  Visual GC tab are not supported yet.
 - Additional utilities to make use of the JMX connection remotely
-
-## Miscellaneous
-
-- Gem: `gem install engineyard-visualvm`
-- Source: http://github.com/engineyard/engineyard-visualvm
-- License: MIT, see LICENSE.txt for details.
