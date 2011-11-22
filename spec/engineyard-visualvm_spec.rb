@@ -27,7 +27,12 @@ describe EngineYard::VisualVM::CLI do
 
   context "#start" do
     let(:ssh_process) { double("ssh process double").tap {|d| d.should_receive(:start) } }
-    let(:visualvm_process) { double("visualvm process double").tap {|d| d.should_receive(:start); d.should_receive(:exited?).and_return(true) } }
+    let(:visualvm_process) do
+      double("visualvm process double").tap {|d|
+        d.should_receive(:start)
+        d.should_receive(:exited?).and_return(true)
+      }
+    end
 
     before :each do
       script.class_eval do
