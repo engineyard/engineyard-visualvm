@@ -47,14 +47,20 @@ package org.jruby.ext.jmx;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
-import java.rmi.server.RMIServerSocketFactory;
 import javax.management.remote.rmi.RMIConnectorServer;
+
+import sun.jvmstat.monitor.remote.RemoteHost;
+import sun.tools.jstatd.RemoteHostImpl;
+import java.rmi.Naming;
 
 public class Agent {
 
@@ -100,6 +106,15 @@ public class Agent {
         // of the URL, in "rmi://"+hostname+":"+port
         //
         JMXConnectorServer cs = new RMIConnectorServer(makeJMXServiceURL(hostname, port), env, mbs);
+
+        try {
+            // Create and register Jstatd remote host
+            Remote remoteHost = (Remote) Class.forName("sun.tools.jstatd.RemoteHostImpl").newInstance();
+            UnicastRemoteObject.exportObject(remoteHost, port, null, factory);
+            Naming.rebind("//"+hostname+":"+port+"/JStatRemoteHost", remoteHost);
+        } catch (Throwable e) {
+            System.err.println("Unable to start jstatd monitor: " + e.toString());
+        }
 
         cs.start();
         cleaner = new CleanThread(cs);

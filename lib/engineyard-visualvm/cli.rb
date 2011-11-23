@@ -79,18 +79,32 @@ module EngineYard
       end
 
       def jvm_arguments
-        "-Dorg.jruby.jmx.agent.port=#{next_free_port} -javaagent:#{File.expand_path('../agent.jar', __FILE__)}"
+        tools_jar = find_tools_jar
+        args = "-Dorg.jruby.jmx.agent.port=#{next_free_port} -javaagent:#{agent_jar_path}"
+        args = "-Dorg.jruby.jmx.agent.hostname=#{host} #{args}" if host != "localhost"
+        args = "-Xbootclasspath/a:#{tools_jar} #{args}" if tools_jar
+        args
       end
 
       def jmx_service_url
-        require 'engineyard-visualvm/agent'
-        require 'java'
-        org.jruby.ext.jmx.Agent.make_jmx_service_url(host, port)
+        "service:jmx:rmi://#{host}:#{port}/jndi/rmi://#{host}:#{port}/jmxrmi"
       end
 
       def find_executable?(exe)
         ENV['PATH'].split(File::PATH_SEPARATOR).detect do |path|
           File.exist?(File.join(path, exe))
+        end
+      end
+
+      def agent_jar_path
+        File.expand_path('../agent.jar', __FILE__)
+      end
+
+      def find_tools_jar
+        java_home = `java -classpath #{agent_jar_path} org.jruby.ext.jmx.agent.JavaHome`
+        [File.expand_path('./lib/tools.jar', java_home),
+         File.expand_path('../lib/tools.jar', java_home)].detect do |path|
+          File.readable?(path)
         end
       end
 
