@@ -37,8 +37,35 @@ than the default, pass `--host=<host-or-ip>` or `--port=<port>` to
 To verify that a JMX connection to a server can be established, we can
 use Vagrant and Chef to bootstrap a VM, start a JRuby process with JMX
 enabled, create an ssh tunnel to the Vagrant box, and use the `jmx`
-gem to connect to it from Ruby code. The code for this is at the
-bottom of `Rakefile`. To try it yourself, do the following:
+gem to connect to it from Ruby code. The code for this looks like
+this:
+
+```ruby
+require 'childprocess'
+require 'jmx'
+
+sh "vagrant ssh_config > ssh_config.tmp"
+sh "vagrant up"
+at_exit { sh "vagrant halt"; rm_f "ssh_config.tmp" }
+
+@host, @port = 'localhost', 5900
+
+ssh = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{@port}", "-F", "ssh_config.tmp", "default")
+ssh.start
+at_exit { ssh.stop }
+
+require 'engineyard-visualvm'
+include EngineYard::VisualVM::Helpers
+server = JMX::MBeanServer.new jmx_service_url
+
+runtime_config_name = server.query_names('org.jruby:type=Runtime,name=*,service=Config').to_a.first
+puts "Found runtime #{runtime_config_name}"
+runtime_config = server[runtime_config_name]
+puts "Runtime version: #{runtime_config['VersionString']}"
+puts "OK"
+```
+
+To try it yourself, do the following:
 
     # Ensure you have vagrant and jmx installed
     $ bundle install
