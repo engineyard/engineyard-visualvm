@@ -50,7 +50,11 @@ module EngineYard
       end
 
       def ssh?
-        environment || (host && user) || options[:ssh]
+        environment || (host && user) || options[:ssh] || options[:socks]
+      end
+
+      def socks_proxy?
+        options[:socks]
       end
 
       def ssh_host
@@ -145,7 +149,8 @@ module EngineYard
       end
 
       desc "start", "Launch VisualVM to connect to the server.\nUse either the environment/account or host/port options."
-      method_option :ssh, :type => :boolean, :desc => "Force VisualVM to connect through an ssh tunnel"
+      method_option :ssh,   :type => :boolean, :desc => "Force VisualVM to connect through an ssh tunnel"
+      method_option :socks, :type => :boolean, :desc => "Force VisualVM to connect through a SOCKS proxy"
       method_option :environment, :aliases => ["-e"], :desc => "Environment containing the IP to which to resolve", :type => :string
       method_option :account,     :aliases => ["-c"], :desc => "Name of the account where the environment is found"
       def start
@@ -154,15 +159,26 @@ module EngineYard
           exit 1
         end
 
+        visualvm_args = []
+
         if ssh?
           ssh_dest = ssh_host
-          server_host, server_port = host, port
-          @host, @port = "localhost", next_free_port
-          @ssh_process = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{server_port}", "#{ssh_dest}")
+
+          if socks_proxy?
+            proxy_port = next_free_port
+            visualvm_args += ["-J-Dnetbeans.system_socks_proxy=localhost:#{proxy_port}", "-J-Djava.net.useSystemProxies=true"]
+            @ssh_process = ChildProcess.build("ssh", "-ND", proxy_port.to_s, ssh_dest)
+          else
+            server_host, server_port = host, port
+            @host, @port = "localhost", next_free_port
+            @ssh_process = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{server_port}", "#{ssh_dest}")
+          end
+
           @ssh_process.start
         end
 
-        visualvm = ChildProcess.build("jvisualvm", "--openjmx", jmx_service_url.to_s)
+        visualvm_args += ["--openjmx", jmx_service_url.to_s]
+        visualvm = ChildProcess.build("jvisualvm", *visualvm_args)
         visualvm.start
 
         loop do
