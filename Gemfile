@@ -6,4 +6,9 @@
 
 source "http://rubygems.org"
 
+group :development do
+  gem "vagrant"
+  gem "chef"
+end
+
 gemspec
