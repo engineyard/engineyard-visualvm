@@ -44,3 +44,33 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
 task :spec => :jar
+
+begin
+  require 'childprocess'
+  require 'jmx'
+  task :acceptance => :build do
+    sh "vagrant ssh_config > ssh_config.tmp"
+    sh "vagrant up"
+    at_exit { sh "vagrant halt"; rm_f "ssh_config.tmp" }
+
+    @host, @port = 'localhost', 5900
+
+    ssh = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{@port}", "-F", "ssh_config.tmp", "default")
+    ssh.start
+    at_exit { ssh.stop }
+
+    require 'engineyard-visualvm'
+    include EngineYard::VisualVM::Helpers
+    server = JMX::MBeanServer.new jmx_service_url
+
+    runtime_config_name = server.query_names('org.jruby:type=Runtime,name=*,service=Config').to_a.first
+    puts "Found runtime #{runtime_config_name}"
+    runtime_config = server[runtime_config_name]
+    puts "Runtime version: #{runtime_config['VersionString']}"
+    puts "OK"
+  end
+rescue LoadError
+  task :acceptance do
+    fail "Run 'acceptance' with JRuby to actually run the test"
+  end
+end

@@ -1,18 +1,15 @@
 #!/bin/bash
 
 export PATH=/usr/local/bin:$PATH
-
 export JAVA_OPTS=$(jruby -S ey-visualvm jvmargs)
 
 start() {
-  echo "Starting node"
   /sbin/start-stop-daemon --start --verbose --background --make-pidfile \
     --pidfile server.pid --exec /usr/local/bin/jruby --chdir $PWD \
     -- -e sleep
 }
 
 stop() {
-  echo "Stopping node"
   /sbin/start-stop-daemon --stop --quiet --pidfile server.pid
 }
 

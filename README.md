@@ -32,6 +32,34 @@ The server JVM binds to the loopback interface and listens on port
 than the default, pass `--host=<host-or-ip>` or `--port=<port>` to
 `ey-visualvm jvmargs`.
 
+## Acceptance Test
+
+To verify that a JMX connection to a server can be established, we can
+use Vagrant and Chef to bootstrap a VM, start a JRuby process with JMX
+enabled, create an ssh tunnel to the Vagrant box, and use the `jmx`
+gem to connect to it from Ruby code. The code for this is at the
+bottom of `Rakefile`. To try it yourself, do the following:
+
+    # Ensure you have vagrant and jmx installed
+    $ bundle install
+
+    # Run the acceptance test
+    $ rake acceptance
+    vagrant ssh_config > ssh_config.tmp
+    vagrant up
+    # ... bunch of output as the VM boots and Chef runs...
+    [default] [Tue, 22 Nov 2011 19:52:41 -0800] INFO: execute[start server] ran successfully
+    [Tue, 22 Nov 2011 19:52:41 -0800] INFO: Chef Run complete in 35.157236 seconds
+    [Tue, 22 Nov 2011 19:52:41 -0800] INFO: Running report handlers
+    [Tue, 22 Nov 2011 19:52:41 -0800] INFO: Report handlers complete
+    : stdout
+    Found runtime org.jruby:type=Runtime,name=25292276,service=Config
+    Runtime version: jruby 1.6.5 (ruby-1.8.7-p330) (2011-10-25 9dcd388) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]
+    OK
+    vagrant halt
+    [default] Attempting graceful shutdown of linux...
+    rm -f ssh_config.tmp
+
 ## Bits and Pieces
 
 - Gem: `gem install engineyard-visualvm`
