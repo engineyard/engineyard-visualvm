@@ -6,6 +6,22 @@
 
 require File.expand_path('../spec_helper', __FILE__)
 
+describe EngineYard::VisualVM::Helpers do
+  context "when included in a class"
+  let(:object) do
+    clz = Class.new
+    clz.class_eval { include EngineYard::VisualVM::Helpers }
+    clz.new
+  end
+
+  it "can calculate JVM arguments" do
+    object.jvm_arguments.tap {|args|
+      args.should =~ /org\.jruby\.jmx\.agent/
+      args.should =~ /javaagent:.*agent\.jar/
+    }
+  end
+end
+
 describe EngineYard::VisualVM::CLI do
   let(:script) { Class.new(EngineYard::VisualVM::CLI) }
 

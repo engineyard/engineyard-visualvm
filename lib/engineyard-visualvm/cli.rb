@@ -14,6 +14,16 @@ require "engineyard/thor"
 module EngineYard
   module VisualVM
     module Helpers
+      def self.included(base)
+        unless base.instance_methods.map(&:to_s).include?("options")
+          base.class_eval do
+            def options
+              @_opts ||= { :host => "localhost" }
+            end
+          end
+        end
+      end
+
       def self.port_available?(port)
         begin
           tcps = TCPServer.new("127.0.0.1", port)
