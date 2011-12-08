@@ -1,0 +1,12 @@
+2011-12-08  Nick Sieger  <nick@nicksieger.com>
+
+	*  (Changes): Release 0.5.1
+
+	* lib/engineyard-visualvm/cli.rb (EngineYard::VisualVM::Helpers):
+	Make #options method available if needed when Helpers is included
+	into an arbitrary class.
+
+2011-12-02  Nick Sieger  <nick@nicksieger.com>
+
+	*  (Changes): Initial release (0.5.0)
+
