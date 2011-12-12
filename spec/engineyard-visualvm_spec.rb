@@ -23,7 +23,7 @@ describe EngineYard::VisualVM::Helpers do
 end
 
 describe EngineYard::VisualVM::CLI do
-  let(:script) { Class.new(EngineYard::VisualVM::CLI) }
+  let(:script) { Class.new(EngineYard::VisualVM::CLI) { include SystemDouble } }
 
   context "#help" do
     it "prints the default port" do
@@ -42,6 +42,7 @@ describe EngineYard::VisualVM::CLI do
   end
 
   context "#start" do
+    let(:system_double) { double("system").tap {|d| script.system_double = d } }
     let(:ssh_process) { double("ssh process double").tap {|d| d.should_receive(:start) } }
     let(:visualvm_process) do
       double("visualvm process double").tap {|d|
@@ -83,6 +84,7 @@ describe EngineYard::VisualVM::CLI do
     end
 
     it "sets up an ssh tunnel if the user@host format is used" do
+      system_double.should_receive(:system).with("ssh user@example.com true").ordered.and_return true
       ChildProcess.should_receive(:build).ordered.and_return do |*args|
         args.join(' ').should =~ /ssh -NL.*user@example.com/
         ssh_process
@@ -97,6 +99,7 @@ describe EngineYard::VisualVM::CLI do
     end
 
     it "allows an ssh tunnel to be forced" do
+      system_double.should_receive(:system).ordered.and_return true
       ChildProcess.should_receive(:build).ordered.and_return do |*args|
         args.join(' ').should =~ /ssh -NL/
         ssh_process
@@ -122,6 +125,7 @@ describe EngineYard::VisualVM::CLI do
       end
 
       it "finds an open port for the local side of the ssh tunnel" do
+        system_double.should_receive(:system).ordered.and_return true
         ChildProcess.should_receive(:build).ordered.and_return do |*args|
           args.join(' ').should =~ /ssh -NL #{@next_port}:localhost:#{@port}/
           ssh_process

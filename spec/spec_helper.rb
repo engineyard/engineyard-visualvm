@@ -25,6 +25,25 @@ module EYVisualVMSpecHelpers
   alias capture silence
 end
 
+module SystemDouble
+  def self.included(base)
+    def base.system_double
+        @@double
+    end
+    def base.system_double=(d)
+      @@double = d
+    end
+  end
+
+  def system_double
+    @@double
+  end
+
+  def system(*args)
+    system_double.system(*args)
+  end
+end
+
 RSpec.configure do |config|
   config.include EYVisualVMSpecHelpers
 end

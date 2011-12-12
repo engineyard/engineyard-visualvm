@@ -179,6 +179,10 @@ module EngineYard
 
         if ssh?
           ssh_dest = ssh_host
+          unless system "ssh #{ssh_dest} true"
+            warn "Error establishing ssh connection; make sure you can `ssh #{ssh_dest}'."
+            exit 3
+          end
 
           if socks_proxy?
             proxy_port = next_free_port
@@ -187,7 +191,7 @@ module EngineYard
           else
             server_host, server_port = host, port
             @host, @port = "localhost", next_free_port
-            @ssh_process = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{server_port}", "#{ssh_dest}")
+            @ssh_process = ChildProcess.build("ssh", "-NL", "#{@port}:#{@host}:#{server_port}", ssh_dest)
           end
 
           @ssh_process.start
