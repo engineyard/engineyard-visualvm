@@ -97,6 +97,8 @@ To try it yourself, do the following:
 
 - Prompt for a JVM to connect to if more than one JVM process is
   running on the server
+- Prompt for an instance to connect to if the environment has multiple
+  instances
 - Data collected by `jstatd` is not yet supported, so things like the
   Visual GC tab are not supported yet.
 - Additional utilities to make use of the JMX connection remotely

@@ -1,3 +1,13 @@
+2011-12-13  Nick Sieger  <nick@nicksieger.com>
+
+	*  (Changes): Release 0.5.2
+
+	* lib/engineyard-visualvm/cli.rb (EngineYard::VisualVM::Helpers#fetch_public_ip):
+	Use public hostname from environment's single instance
+
+	* lib/engineyard-visualvm/cli.rb (EngineYard::VisualVM::CLI#start):
+	Ensure host is in known_hosts file before launching visual vm
+
 2011-12-08  Nick Sieger  <nick@nicksieger.com>
 
 	*  (Changes): Release 0.5.1
