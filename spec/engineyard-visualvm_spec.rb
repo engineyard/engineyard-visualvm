@@ -139,7 +139,6 @@ describe EngineYard::VisualVM::CLI do
     context "with --environment specified" do
       let(:environment) do
         double(:environment).tap {|e|
-          e.stub!(:load_balancer_ip_address).and_return "0.0.0.0"
           e.stub!(:username).and_return "deploy"
         }
       end
@@ -151,8 +150,25 @@ describe EngineYard::VisualVM::CLI do
       end
 
       it "sets the user to 'deploy' and the host to the load balancer IP address" do
+        environment.stub!(:load_balancer_ip_address).and_return "0.0.0.0"
         ChildProcess.should_receive(:build).ordered.and_return do |*args|
           args.join(' ').should =~ /ssh -NL.* deploy@0.0.0.0/
+          ssh_process
+        end
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
+          args[2].should =~ /service:jmx:rmi.*localhost:/
+          visualvm_process
+        end
+        ssh_process.should_receive(:stop)
+
+        script.start(["start", "--environment=jruby"])
+      end
+
+      it "uses the public hostname of the first instance if no load balancer" do
+        environment.stub!(:load_balancer_ip_address).and_return nil
+        environment.stub!(:instances).and_return [double("instance").tap{|d| d.stub!(:public_hostname).and_return "example.com" }]
+        ChildProcess.should_receive(:build).ordered.and_return do |*args|
+          args.join(' ').should =~ /ssh -NL.* deploy@example.com/
           ssh_process
         end
         ChildProcess.should_receive(:build).ordered.and_return do |*args|
