@@ -45,6 +45,18 @@ RSpec::Core::RakeTask.new
 
 task :spec => :jar
 
+# Override push to use engineyard key
+class Bundler::GemHelper
+  def rubygem_push(path)
+    if Gem.configuration.api_keys.key? :engineyard
+      sh("gem push -k engineyard '#{path}'")
+      Bundler.ui.confirm "Pushed #{name} #{version} to rubygems.org"
+    else
+      raise ":engineyard key not set in ~/.gem/credentials"
+    end
+  end
+end
+
 begin
   require 'childprocess'
   require 'jmx'
