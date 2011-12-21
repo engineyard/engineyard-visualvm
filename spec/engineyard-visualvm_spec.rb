@@ -154,6 +154,7 @@ describe EngineYard::VisualVM::CLI do
       end
 
       it "sets the user to 'deploy' and the host to the load balancer IP address" do
+        system_double.should_receive(:system).ordered.and_return true
         environment.stub!(:load_balancer_ip_address).and_return "0.0.0.0"
         ChildProcess.should_receive(:build).ordered.and_return do |*args|
           args.join(' ').should =~ /ssh -NL.* deploy@0.0.0.0/
@@ -169,6 +170,7 @@ describe EngineYard::VisualVM::CLI do
       end
 
       it "uses the public hostname of the first instance if no load balancer" do
+        system_double.should_receive(:system).ordered.and_return true
         environment.stub!(:load_balancer_ip_address).and_return nil
         environment.stub!(:instances).and_return [double("instance").tap{|d| d.stub!(:public_hostname).and_return "example.com" }]
         ChildProcess.should_receive(:build).ordered.and_return do |*args|
