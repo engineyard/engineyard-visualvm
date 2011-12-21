@@ -13,4 +13,14 @@ group :development do
   gem "jmx", :platform => :jruby
 end
 
-gemspec
+gemspec_in = Dir['*.gemspec.in'].first
+gemspec_ruby = gemspec_in.sub(/\.gemspec\.in/, '')
+gemspec_java = gemspec_ruby + '-java'
+
+platforms :jruby do
+  gemspec :name => gemspec_java
+end
+
+platforms :ruby do
+  gemspec :name => gemspec_ruby
+end
