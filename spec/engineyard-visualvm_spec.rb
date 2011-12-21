@@ -53,7 +53,7 @@ describe EngineYard::VisualVM::CLI do
 
     before :each do
       script.class_eval do
-        no_tasks { define_method(:fetch_environment) { raise EY::Error, "error" } }
+        no_tasks { define_method(:fetch_environment) {|e,a| raise EY::Error, "error" } }
       end
     end
 
@@ -149,7 +149,7 @@ describe EngineYard::VisualVM::CLI do
       before :each do
         env = environment
         script.class_eval do
-          no_tasks { define_method(:fetch_environment) { env } }
+          no_tasks { define_method(:fetch_environment) {|e,a| env } }
         end
       end
 
