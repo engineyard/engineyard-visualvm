@@ -1,6 +1,6 @@
 engineyard-visualvm is provided under the terms of the MIT license.
 
-engineyard-visualvm (c) 2011 Engine Yard, Inc.
+engineyard-visualvm (c) 2011-2012 Engine Yard, Inc.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation files
