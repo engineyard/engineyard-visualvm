@@ -48,7 +48,7 @@ module EngineYard
                              @user = env.username
                              @host = fetch_public_ip(env)
                            }
-                         rescue EY::Error
+                         rescue
                            raise if options[:environment]
                            nil
                          end
